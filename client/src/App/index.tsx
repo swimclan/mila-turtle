@@ -25,7 +25,7 @@ const createDefaultTurtleState = (
   y: Math.floor(CanvasDimensions.height / 2),
   theta: 0,
   pen: false,
-  color: UI_COLORS.FOREGROUND.DEFAULT,
+  color: "GREEN",
 });
 
 export const App = () => {
@@ -111,11 +111,11 @@ export const App = () => {
           x: Math.floor(CanvasDimensions.width / 2),
           y: Math.floor(CanvasDimensions.height / 2),
         });
-      } else if (nextInstruction.direction) {
+      } else if (nextInstruction.dir) {
         const dir = { north: 0, south: 180, east: 90, west: 270 };
         setTurtleState({
           ...turtleState,
-          theta: dir[nextInstruction.direction],
+          theta: dir[nextInstruction.dir],
         });
       }
       instructions[currentInstruction + 1] &&

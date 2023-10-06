@@ -7,7 +7,7 @@ type TypeInstruction = {
   end?: void | boolean;
   color?: string;
   center?: void | boolean;
-  direction?: "north" | "south" | "east" | "west";
+  dir?: "north" | "south" | "east" | "west";
 };
 
 type TypeCompiled = Array<TypeInstruction>;
