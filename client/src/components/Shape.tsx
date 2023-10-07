@@ -11,7 +11,7 @@ export const TriangleUp = styled.div.attrs<{
 }>((props) => ({
   style: {
     rotate: `${props.theta}deg`,
-    top: `${props.y}px`,
+    top: `${props.y - 4}px`,
     left: `${props.x - 10}px`,
   },
 }))`
