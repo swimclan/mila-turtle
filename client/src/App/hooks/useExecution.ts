@@ -15,11 +15,21 @@ export const useExecution = ({
     createDefaultTurtleState({ width: 0, height: 0 })
   );
   const [currentInstruction, setCurrentInstruction] = useState<number>(-1);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const clearExecution = () => {
     setTurtleState(createDefaultTurtleState(canvasDimensions));
     setCurrentInstruction(-1);
     setLines([]);
+    setIsRunning(false);
+  };
+
+  const stopRunning = () => {
+    setIsRunning(false);
+  };
+
+  const resumeRunning = () => {
+    setIsRunning(true);
   };
 
   useEffect(() => {
@@ -29,6 +39,7 @@ export const useExecution = ({
   useEffect(() => {
     if (instructions.length > 0) {
       setCurrentInstruction(0);
+      setIsRunning(true);
     }
   }, [instructions]);
 
@@ -93,11 +104,23 @@ export const useExecution = ({
           theta: dir[nextInstruction.dir],
         });
       }
-      !instructions[currentInstruction + 1] && onFinish();
+      if (!instructions[currentInstruction + 1]) {
+        onFinish();
+        setIsRunning(false);
+      }
       instructions[currentInstruction + 1] &&
-        setTimeout(() => setCurrentInstruction(currentInstruction + 1), 2);
+        isRunning &&
+        setTimeout(() => setCurrentInstruction(currentInstruction + 1), 1);
     }
-  }, [currentInstruction, instructions]);
+  }, [currentInstruction, instructions, isRunning]);
 
-  return { lines, turtleState, currentInstruction, clearExecution };
+  return {
+    lines,
+    turtleState,
+    currentInstruction,
+    clearExecution,
+    isRunning,
+    stopRunning,
+    resumeRunning,
+  };
 };

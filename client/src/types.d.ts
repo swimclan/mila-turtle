@@ -33,3 +33,7 @@ type TypeLine = {
   y2: number;
   color: string;
 };
+
+type TypeScript = Array<string>;
+
+type TypeStoredData = { [id: string]: { script: TypeScript; label?: string } };

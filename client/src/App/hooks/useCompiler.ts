@@ -7,7 +7,7 @@ export const useCompiler = ({
   script,
   compileRequested,
 }: {
-  script: Array<string>;
+  script: TypeScript;
   compileRequested: boolean;
 }) => {
   const [instructions, setInstructions] = useState<TypeCompiled>([]);
