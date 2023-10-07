@@ -5,6 +5,7 @@ const END_PATTERN = /^(END)$/i;
 const COLOR_PATTERN = /^(COLOR)\s(GREEN|BLUE|RED|WHITE|PURPLE|PINK|ORANGE)$/i;
 const CENTER_PATTERN = /^(CENTER)$/i;
 const DIRECTION_PATTERN = /^(DIR)\s(NORTH|SOUTH|EAST|WEST)$/i;
+const COMMENT_PATTERN = /^(#)(.+)$/;
 
 export function Compiler() {
   return {
@@ -14,6 +15,10 @@ export function Compiler() {
       while (cursor < script.length) {
         const line = script[cursor];
         const currentLine = LineCompiler(line);
+        if (currentLine.comment) {
+          cursor++;
+          continue;
+        }
         if (currentLine.do) {
           const iterCount = currentLine.do;
           const exploded = ExplodeLoop(script.slice(cursor));
@@ -37,6 +42,7 @@ const LineCompiler = (line: string): TypeInstruction => {
   const colorMatcher = line.match(COLOR_PATTERN);
   const centerMatcher = line.match(CENTER_PATTERN);
   const directionMatcher = line.match(DIRECTION_PATTERN);
+  const commentMatcher = line.match(COMMENT_PATTERN);
   const matcher =
     positionMatcher ||
     penMatcher ||
@@ -45,9 +51,16 @@ const LineCompiler = (line: string): TypeInstruction => {
     colorMatcher ||
     centerMatcher ||
     directionMatcher;
+  if (commentMatcher) {
+    return {
+      comment: commentMatcher[2],
+    };
+  }
   if (matcher) {
     return {
-      [matcher[1].toLowerCase()]: !isNaN(Number(matcher[2]))
+      [matcher[1].toLowerCase() as keyof TypeInstruction]: !isNaN(
+        Number(matcher[2])
+      )
         ? Number(matcher[2])
         : matcher[2]?.toLowerCase() ?? true,
     };

@@ -8,6 +8,7 @@ type TypeInstruction = {
   color?: string;
   center?: void | boolean;
   dir?: "north" | "south" | "east" | "west";
+  comment?: string;
 };
 
 type TypeCompiled = Array<TypeInstruction>;
