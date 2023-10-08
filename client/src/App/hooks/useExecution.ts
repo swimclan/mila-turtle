@@ -18,10 +18,10 @@ export const useExecution = ({
   const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const clearExecution = () => {
+    setIsRunning(false);
     setTurtleState(createDefaultTurtleState(canvasDimensions));
     setCurrentInstruction(-1);
     setLines([]);
-    setIsRunning(false);
   };
 
   const stopRunning = () => {
@@ -44,7 +44,7 @@ export const useExecution = ({
   }, [instructions]);
 
   useEffect(() => {
-    if (currentInstruction > -1) {
+    if (currentInstruction > -1 && instructions.length > 0 && isRunning) {
       const nextInstruction: TypeInstruction = instructions[currentInstruction];
       if (nextInstruction.right) {
         setTurtleState({
@@ -70,7 +70,16 @@ export const useExecution = ({
           x: nextX,
           y: nextY,
         });
-        turtleState.pen &&
+        if (
+          turtleState.pen &&
+          !lines.find(
+            (line) =>
+              line.x1 === currentX &&
+              line.x2 === nextX &&
+              line.y1 === currentY &&
+              line.y2 === nextY
+          )
+        ) {
           setLines([
             ...lines,
             {
@@ -81,6 +90,7 @@ export const useExecution = ({
               color: turtleState.color,
             },
           ]);
+        }
       } else if (nextInstruction.pen) {
         setTurtleState({
           ...turtleState,

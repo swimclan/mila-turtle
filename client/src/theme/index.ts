@@ -1,5 +1,6 @@
 export const BASE_COLORS = {
   GREEN: "#00FF00",
+  YELLOW: "#F7FF00",
   BLUE: "#0000FF",
   RED: "#FF0000",
   ORANGE: "#FFA233",

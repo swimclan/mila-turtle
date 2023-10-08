@@ -61,7 +61,7 @@ export const App = () => {
     onFinish: () => setCompileRequested(false),
   });
 
-  const { savedData, onSave } = useStorage();
+  const { savedData, onSave, onDelete } = useStorage();
 
   /////// HANDLERS ////////////////////////////////////////////////
   const handleEditorChange = useCallback(
@@ -80,9 +80,10 @@ export const App = () => {
 
   const handleClearClick = useCallback(
     (e: React.SyntheticEvent) => {
-      setScript([]);
-      monoco?.editor?.getModels()?.[0]?.setValue("");
       clearExecution();
+      setScript([]);
+      setCompileRequested(false);
+      monoco?.editor?.getModels()?.[0]?.setValue("");
       clearCompilation();
     },
     [setScript, monoco, CanvasDimensions]
@@ -124,6 +125,10 @@ export const App = () => {
       setScript(savedData[id].script);
     };
 
+  const createHandleDeleteSavedScript =
+    (id: string) => (e: React.SyntheticEvent) =>
+      onDelete(id);
+
   /////// THE VIEW /////////////////////////////////////////////////
   return (
     <>
@@ -155,6 +160,7 @@ export const App = () => {
           <Canvas ref={canvasRef}>
             {lines.map((line) => (
               <VectorLine
+                key={`${line.x1}-${line.x2}-${line.y1}-${line.y2}`}
                 x1={line.x1}
                 x2={line.x2}
                 y1={line.y1}
@@ -165,6 +171,7 @@ export const App = () => {
           </Canvas>
         </Container>
         <Container gridarea="editor" width="100%">
+          <div>Code Editor</div>
           <Editor theme="vs-dark" onChange={handleEditorChange} />
         </Container>
         <Container gridarea="browser" border={["top"]}>
@@ -178,7 +185,7 @@ export const App = () => {
                     <SmallButton onClick={createHandleLoadSavedScript(id)}>
                       [LOAD]
                     </SmallButton>
-                    <SmallButton onClick={() => console.log("CLICK!")}>
+                    <SmallButton onClick={createHandleDeleteSavedScript(id)}>
                       [DEL]
                     </SmallButton>
                   </li>

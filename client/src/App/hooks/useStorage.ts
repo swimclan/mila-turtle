@@ -6,7 +6,20 @@ const convertLabelToId = (label: string) => {
   return `${label.toLowerCase().replace(/\s/g, "_")}_${Date.now()}`;
 };
 
-const getInitialSavedData = (): TypeStoredData => {
+const findOverwriteId = (
+  datum: TypeStoredData,
+  label: string
+): string | null => {
+  let overwriteId: string | null = null;
+  Object.entries(datum).forEach(([id, data]) => {
+    if (data.label === label) {
+      overwriteId = id;
+    }
+  });
+  return overwriteId;
+};
+
+const getSavedData = (): TypeStoredData => {
   let savedData = {};
   try {
     savedData =
@@ -17,23 +30,40 @@ const getInitialSavedData = (): TypeStoredData => {
   return savedData;
 };
 
+const storeSavedData = (data: TypeStoredData): void => {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error("Something went wrong while saving data");
+  }
+};
+
 export const useStorage = () => {
   const [savedData, setSavedData] = useState<TypeStoredData>(
-    getInitialSavedData() ?? {}
+    getSavedData() ?? {}
   );
 
   const onSave = (label: string, script: TypeScript) => {
-    // Define onSave based on the latest version of scripts
-    let parsedData = {};
     try {
-      const parsedData: TypeStoredData = savedData;
-      const id = convertLabelToId(label as string);
-      parsedData[id] = { label, script };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
-      setSavedData(parsedData);
+      const dataToSave = { ...savedData };
+      const id =
+        findOverwriteId(dataToSave, label) ?? convertLabelToId(label as string);
+      dataToSave[id] = { label, script };
+      storeSavedData(dataToSave);
+      setSavedData(dataToSave);
     } catch (error) {
       console.error("Saving script has failed");
     }
   };
-  return { savedData, onSave };
+
+  const onDelete = (id: string) => {
+    try {
+      const { [id]: data, ...rest } = savedData;
+      storeSavedData(rest);
+      setSavedData(rest);
+    } catch (e) {
+      console.error("Deleting file errored");
+    }
+  };
+  return { savedData, onSave, onDelete };
 };
