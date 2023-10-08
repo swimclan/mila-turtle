@@ -77,7 +77,8 @@ export const useExecution = ({
               line.x1 === currentX &&
               line.x2 === nextX &&
               line.y1 === currentY &&
-              line.y2 === nextY
+              line.y2 === nextY &&
+              line.stroke === turtleState.stroke
           )
         ) {
           setLines([
@@ -88,6 +89,7 @@ export const useExecution = ({
               y1: currentY,
               y2: nextY,
               color: turtleState.color,
+              stroke: turtleState.stroke,
             },
           ]);
         }
@@ -112,6 +114,11 @@ export const useExecution = ({
         setTurtleState({
           ...turtleState,
           theta: dir[nextInstruction.dir],
+        });
+      } else if (nextInstruction.stroke) {
+        setTurtleState({
+          ...turtleState,
+          stroke: nextInstruction.stroke,
         });
       }
       if (!instructions[currentInstruction + 1]) {

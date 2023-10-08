@@ -9,6 +9,7 @@ type TypeInstruction = {
   center?: void | boolean;
   dir?: "north" | "south" | "east" | "west";
   comment?: string;
+  stroke?: number;
 };
 
 type TypeCompiled = Array<TypeInstruction>;
@@ -19,6 +20,7 @@ type TypeTurtleState = {
   theta: number;
   pen: boolean;
   color: string;
+  stroke: number;
 };
 
 type TypeCanvasDimensions = {
@@ -32,6 +34,7 @@ type TypeLine = {
   y1: number;
   y2: number;
   color: string;
+  stroke: number;
 };
 
 type TypeScript = Array<string>;

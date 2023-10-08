@@ -6,4 +6,5 @@ export const createDefaultTurtleState = (
   theta: 0,
   pen: false,
   color: "GREEN",
+  stroke: 2,
 });

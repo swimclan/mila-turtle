@@ -31,7 +31,6 @@ export const App = () => {
   const [script, setScript] = useState<TypeScript>([]);
   const [compileRequested, setCompileRequested] = useState<boolean>(false);
   const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
-  // const [instructions, setInstructions] = useState<TypeCompiled>([]);
 
   /////// HOOKS / ASYNC ///////////////////////////////////////////
   /*  Monoco editor state */
@@ -166,6 +165,7 @@ export const App = () => {
                 y1={line.y1}
                 y2={line.y2}
                 color={line.color}
+                stroke={line.stroke}
               />
             ))}
           </Canvas>

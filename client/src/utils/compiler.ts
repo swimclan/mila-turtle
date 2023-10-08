@@ -7,6 +7,7 @@ const COLOR_PATTERN =
 const CENTER_PATTERN = /^(CENTER)$/i;
 const DIRECTION_PATTERN = /^(DIR)\s(NORTH|SOUTH|EAST|WEST)$/i;
 const COMMENT_PATTERN = /^(#)(.+)$/;
+const STROKE_PATTERN = /^(STROKE)\s(\d+)$/i;
 
 export function Compiler() {
   return {
@@ -43,6 +44,7 @@ const LineCompiler = (line: string): TypeInstruction => {
   const colorMatcher = line.match(COLOR_PATTERN);
   const centerMatcher = line.match(CENTER_PATTERN);
   const directionMatcher = line.match(DIRECTION_PATTERN);
+  const strokeMatcher = line.match(STROKE_PATTERN);
   const commentMatcher = line.match(COMMENT_PATTERN);
   const matcher =
     positionMatcher ||
@@ -51,7 +53,8 @@ const LineCompiler = (line: string): TypeInstruction => {
     endMatcher ||
     colorMatcher ||
     centerMatcher ||
-    directionMatcher;
+    directionMatcher ||
+    strokeMatcher;
   if (commentMatcher) {
     return {
       comment: commentMatcher[2],
