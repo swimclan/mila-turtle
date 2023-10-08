@@ -1,8 +1,9 @@
+import { memo } from "react";
 import styled from "styled-components";
 import { BASE_COLORS } from "../theme";
 import { type TypeBaseColors } from "../theme";
 
-export const TriangleUp = styled.div.attrs<{
+export const TriangleUp = memo(styled.div.attrs<{
   width: number;
   color: string;
   y: number;
@@ -22,4 +23,4 @@ export const TriangleUp = styled.div.attrs<{
   border-right: ${(props) => props.width}px solid transparent;
   border-bottom: ${(props) => props.width}px solid
     ${(props) => BASE_COLORS[props.color.toUpperCase() as TypeBaseColors]};
-`;
+`);

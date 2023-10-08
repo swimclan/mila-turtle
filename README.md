@@ -1,5 +1,7 @@
 ## Mila Turtle 1.0
 
+![Mila Turtle 1.0 Logo](./images/logo.jpeg)
+
 This is a simple fun little Logo program written in React that compiles instructions to the little turtle on the screen so it can draw beautiful colorful shapes.
 
 This is a great learning tool for young children to start getting into computer programing.

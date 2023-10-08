@@ -1,21 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  createRef,
-  memo,
-} from "react";
+import React, { useState, useCallback, createRef } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
-import {
-  Layout,
-  RightAlignedCenteredContainer,
-  LeftAlignedCenteredContainer,
-  Container,
-  SimpleList,
-} from "../components/Layout";
+import { Layout, Container, SimpleList } from "../components/Layout";
 import { TriangleUp } from "../components/Shape";
 import { Button, SmallButton } from "../components/Button";
-import { VectorLine } from "../components/Line";
+import { VectorLines } from "../components/Line";
 import { Canvas } from "../components/Canvas";
 import { useCanvas } from "./hooks/useCanvas";
 import { useExecution } from "./hooks/useExecution";
@@ -122,6 +110,7 @@ export const App = () => {
         ?.getModels()?.[0]
         ?.setValue(savedData[id].script.join("\n"));
       setScript(savedData[id].script);
+      handleRunClick(e);
     };
 
   const createHandleDeleteSavedScript =
@@ -157,17 +146,7 @@ export const App = () => {
         <Container ref={drawingBoardRef} gridarea="canvas" border={["left"]}>
           <TriangleUp width={10} {...turtleState} />
           <Canvas ref={canvasRef}>
-            {lines.map((line) => (
-              <VectorLine
-                key={`${line.x1}-${line.x2}-${line.y1}-${line.y2}`}
-                x1={line.x1}
-                x2={line.x2}
-                y1={line.y1}
-                y2={line.y2}
-                color={line.color}
-                stroke={line.stroke}
-              />
-            ))}
+            <VectorLines lines={lines} />
           </Canvas>
         </Container>
         <Container gridarea="editor" width="100%">

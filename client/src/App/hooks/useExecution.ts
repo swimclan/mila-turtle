@@ -61,10 +61,20 @@ export const useExecution = ({
         const currentY = turtleState.y;
         const nextX =
           turtleState.x +
-          Math.sin(turtleState.theta * (Math.PI / 180)) * nextInstruction.move;
+          Number(
+            (
+              Math.sin(turtleState.theta * (Math.PI / 180)) *
+              nextInstruction.move
+            ).toFixed(0)
+          );
         const nextY =
           turtleState.y -
-          Math.cos(turtleState.theta * (Math.PI / 180)) * nextInstruction.move;
+          Number(
+            (
+              Math.cos(turtleState.theta * (Math.PI / 180)) *
+              nextInstruction.move
+            ).toFixed(0)
+          );
         setTurtleState({
           ...turtleState,
           x: nextX,
@@ -81,7 +91,7 @@ export const useExecution = ({
               line.stroke === turtleState.stroke
           )
         ) {
-          setLines([
+          const newLines = [
             ...lines,
             {
               x1: currentX,
@@ -91,7 +101,8 @@ export const useExecution = ({
               color: turtleState.color,
               stroke: turtleState.stroke,
             },
-          ]);
+          ];
+          setLines(newLines);
         }
       } else if (nextInstruction.pen) {
         setTurtleState({
@@ -127,7 +138,7 @@ export const useExecution = ({
       }
       instructions[currentInstruction + 1] &&
         isRunning &&
-        setTimeout(() => setCurrentInstruction(currentInstruction + 1), 1);
+        setTimeout(() => setCurrentInstruction(currentInstruction + 1), 0);
     }
   }, [currentInstruction, instructions, isRunning]);
 
