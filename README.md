@@ -30,6 +30,14 @@ yarn start
 
 Currently there isn't support for a hot module swapping local dev server. The app needs to be killed and respawned so the front end can be built and deployed. Future work will include adding a hot module swapping solution
 
+#### Start the app locally
+
+```
+yarn run setup
+```
+
+This will install node module dependencies for both the client and server
+
 ## Language
 
 The language is really easy to learn! Here are the commands that are used to control the little turtle and make great sprites!
