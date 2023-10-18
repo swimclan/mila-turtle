@@ -68,10 +68,10 @@ export const App = () => {
   const handleClearClick = useCallback(
     (e: React.SyntheticEvent) => {
       clearExecution();
-      setScript([]);
       setCompileRequested(false);
-      monoco?.editor?.getModels()?.[0]?.setValue("");
-      clearCompilation();
+      // setScript([]);
+      // monoco?.editor?.getModels()?.[0]?.setValue("");
+      // clearCompilation();
     },
     [setScript, monoco, CanvasDimensions]
   );
@@ -180,7 +180,8 @@ export const App = () => {
           border={["top"]}
         >
           {instructions.length > 0 &&
-            currentInstruction < instructions.length - 1 && (
+            currentInstruction < instructions.length - 1 &&
+            currentInstruction !== -1 && (
               <Button variant="primary" onClick={handlePauseResumeClick}>
                 {isRunning ? "PAUSE" : "RESUME"}
               </Button>
