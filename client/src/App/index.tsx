@@ -1,4 +1,4 @@
-import React, { useState, useCallback, createRef } from "react";
+import React, { useState, useCallback, createRef, useEffect } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { Layout, Container, SimpleList } from "../components/Layout";
 import { TriangleUp } from "../components/Shape";
@@ -10,6 +10,7 @@ import { useExecution } from "./hooks/useExecution";
 import { useCompiler } from "./hooks/useCompiler";
 import { useStorage } from "./hooks/useStorage";
 import { SaveModal } from "../components/SaveModal";
+import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 
 const drawingBoardRef: React.RefObject<HTMLDivElement> = createRef();
 const canvasRef: React.RefObject<SVGSVGElement> = createRef();
@@ -19,6 +20,9 @@ export const App = () => {
   const [script, setScript] = useState<TypeScript>([]);
   const [compileRequested, setCompileRequested] = useState<boolean>(false);
   const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] =
+    useState<boolean>(false);
 
   /////// HOOKS / ASYNC ///////////////////////////////////////////
   /*  Monoco editor state */
@@ -49,6 +53,12 @@ export const App = () => {
   });
 
   const { savedData, onSave, onDelete } = useStorage();
+
+  useEffect(() => {
+    if (pendingDeleteId) {
+      setShowDeleteConfirmModal(true);
+    }
+  }, [pendingDeleteId]);
 
   /////// HANDLERS ////////////////////////////////////////////////
   const handleEditorChange = useCallback(
@@ -104,6 +114,21 @@ export const App = () => {
     [setShowSaveModal, script]
   );
 
+  const handleDeleteConfirmModalCancelClick = useCallback(
+    () => setShowDeleteConfirmModal(false),
+    [setShowDeleteConfirmModal]
+  );
+
+  const createHandleConfirmDeleteSavedScript = (id: string) => () =>
+    setPendingDeleteId(id);
+
+  const handleDeleteSavedScript = (id: string | null) => {
+    if (!id) return;
+    onDelete(id);
+    setPendingDeleteId(null);
+    setShowDeleteConfirmModal(false);
+  };
+
   const createHandleLoadSavedScript =
     (id: string) => (e: React.SyntheticEvent) => {
       monoco?.editor
@@ -113,20 +138,20 @@ export const App = () => {
       handleRunClick(e);
     };
 
-  const createHandleDeleteSavedScript =
-    (id: string) => (e: React.SyntheticEvent) =>
-      onDelete(id);
-
   /////// THE VIEW /////////////////////////////////////////////////
   return (
     <>
-      {showSaveModal && (
-        <SaveModal
-          open={showSaveModal}
-          onSubmit={handleSaveModalSubmitClicked}
-          onCancel={handleSaveModalCancelClick}
-        />
-      )}
+      <SaveModal
+        open={showSaveModal}
+        onSubmit={handleSaveModalSubmitClicked}
+        onCancel={handleSaveModalCancelClick}
+      />
+      <DeleteConfirmModal
+        scriptId={pendingDeleteId}
+        open={showDeleteConfirmModal}
+        onSubmit={handleDeleteSavedScript}
+        onCancel={handleDeleteConfirmModalCancelClick}
+      />
       <Layout>
         <Container
           gridarea="header"
@@ -164,7 +189,9 @@ export const App = () => {
                     <SmallButton onClick={createHandleLoadSavedScript(id)}>
                       [LOAD]
                     </SmallButton>
-                    <SmallButton onClick={createHandleDeleteSavedScript(id)}>
+                    <SmallButton
+                      onClick={createHandleConfirmDeleteSavedScript(id)}
+                    >
                       [DEL]
                     </SmallButton>
                   </li>

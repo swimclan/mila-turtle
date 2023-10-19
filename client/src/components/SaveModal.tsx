@@ -16,7 +16,7 @@ export const SaveModal = ({ open, onSubmit, onCancel }: TypeSaveModalProps) => {
 
   return open ? (
     <Modal onBlur={onCancel} height="33%" width="25%">
-      <Container>
+      <Container padding="1em">
         <Container height="80%" padding="1em" width="88%">
           <Container height="33%">Please name your script</Container>
           <Container height="66%" orientation="vertical" align="center">
