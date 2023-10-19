@@ -10,7 +10,7 @@ This is a great learning tool for young children to start getting into computer 
 
 ## Install
 
-After cloning the repo run the following command
+After cloning the repo run the following commands
 
 #### With npm
 
@@ -28,15 +28,7 @@ yarn start
 
 ## Local Development
 
-Currently there isn't support for a hot module swapping local dev server. The app needs to be killed and respawned so the front end can be built and deployed. Future work will include adding a hot module swapping solution
-
-#### Start the app locally
-
-```
-yarn run setup
-```
-
-This will install node module dependencies for both the client and server
+The app has support for Hot Module Reload (HMR)
 
 ## Language
 
