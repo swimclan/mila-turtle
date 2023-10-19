@@ -79,9 +79,6 @@ export const App = () => {
     (e: React.SyntheticEvent) => {
       clearExecution();
       setCompileRequested(false);
-      // setScript([]);
-      // monoco?.editor?.getModels()?.[0]?.setValue("");
-      // clearCompilation();
     },
     [setScript, monoco, CanvasDimensions]
   );
