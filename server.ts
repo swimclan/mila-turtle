@@ -3,36 +3,12 @@ import express, { type Express } from "express";
 import webpack from "webpack";
 import webpackDevMiddleware from "webpack-dev-middleware";
 import DotEnv from "dotenv";
+import { getConfig } from "./webpack.config";
 
 DotEnv.config();
 const app: Express = express();
 
-const compiler = webpack({
-  entry: {
-    main: [
-      "webpack-hot-middleware/client",
-      resolve(__dirname, "../client/index.tsx"),
-    ],
-  },
-  output: {
-    path: resolve(__dirname, "../public/js"),
-    filename: "[name].bundle.js",
-  },
-  mode: process.env.NODE_ENV as "production" | "development",
-  module: {
-    rules: [
-      {
-        test: /\.ts(x)?$/,
-        use: ["ts-loader"],
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".tsx", ".ts", ".js"],
-  },
-  plugins: [new webpack.HotModuleReplacementPlugin()],
-});
+const compiler = webpack(getConfig(process.env));
 
 /* STATIC CONTENT DIRECTORY */
 app.use(express.static("public"));
