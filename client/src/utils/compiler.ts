@@ -1,4 +1,5 @@
 const POSITION_INSTRUCTION_PATTERN = /^(MOVE|RIGHT|LEFT)\s(\d+)$/i;
+const DYNAMIC_POSITION_PATTERN = /^(MOVE|RIGHT|LEFT)\s([a-zA-Z].*)$/i;
 const PEN_INSTRUCTION_PATTERN = /^(PEN)\s(UP|DOWN)$/i;
 const LOOP_INSTRUCTION_PATTERN = /^(DO)\s(\d+)$/i;
 const END_PATTERN = /^(END)$/i;
@@ -8,6 +9,11 @@ const CENTER_PATTERN = /^(CENTER)$/i;
 const DIRECTION_PATTERN = /^(DIR)\s(NORTH|SOUTH|EAST|WEST)$/i;
 const COMMENT_PATTERN = /^(#)(.+)$/;
 const STROKE_PATTERN = /^(STROKE)\s(\d+)$/i;
+const ASSIGNMENT_PATTERN = /^([a-zA-Z].*)\s?=\s?(\d+)$/i;
+const INCREMENT_PATTERN = /^([a-zA-Z].*)\+\+$/i;
+const DECREMENT_PATTERN = /^([a-zA-Z].*)\-\-$/i;
+
+const MEM_CACHE: { [v: string]: number } = {};
 
 export function Compiler() {
   return {
@@ -17,7 +23,7 @@ export function Compiler() {
       while (cursor < script.length) {
         const line = script[cursor];
         const currentLine = LineCompiler(line);
-        if (currentLine.comment) {
+        if (!currentLine || currentLine.comment) {
           cursor++;
           continue;
         }
@@ -36,7 +42,7 @@ export function Compiler() {
   };
 }
 
-const LineCompiler = (line: string): TypeInstruction => {
+const LineCompiler = (line: string): TypeInstruction | void => {
   const positionMatcher = line.match(POSITION_INSTRUCTION_PATTERN);
   const penMatcher = line.match(PEN_INSTRUCTION_PATTERN);
   const loopMatcher = line.match(LOOP_INSTRUCTION_PATTERN);
@@ -46,6 +52,10 @@ const LineCompiler = (line: string): TypeInstruction => {
   const directionMatcher = line.match(DIRECTION_PATTERN);
   const strokeMatcher = line.match(STROKE_PATTERN);
   const commentMatcher = line.match(COMMENT_PATTERN);
+  const assignmentMatcher = line.match(ASSIGNMENT_PATTERN);
+  const incrementMatcher = line.match(INCREMENT_PATTERN);
+  const decrementMatcher = line.match(DECREMENT_PATTERN);
+  const dynamicPositionMatcher = line.match(DYNAMIC_POSITION_PATTERN);
   const matcher =
     positionMatcher ||
     penMatcher ||
@@ -58,6 +68,23 @@ const LineCompiler = (line: string): TypeInstruction => {
   if (commentMatcher) {
     return {
       comment: commentMatcher[2],
+    };
+  }
+  if (assignmentMatcher) {
+    MEM_CACHE[assignmentMatcher[1]] = Number(assignmentMatcher[2]);
+    return;
+  }
+  if (incrementMatcher) {
+    MEM_CACHE[incrementMatcher[1]] = (MEM_CACHE[incrementMatcher[1]] ?? 0) + 1;
+    return;
+  }
+  if (decrementMatcher) {
+    MEM_CACHE[decrementMatcher[1]] = (MEM_CACHE[decrementMatcher[1]] ?? 0) - 1;
+    return;
+  }
+  if (dynamicPositionMatcher) {
+    return {
+      [dynamicPositionMatcher[1]]: MEM_CACHE[dynamicPositionMatcher[2] ?? 0],
     };
   }
   if (matcher) {

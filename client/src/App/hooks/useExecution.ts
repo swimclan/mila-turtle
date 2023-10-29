@@ -65,7 +65,7 @@ export const useExecution = ({
             (
               Math.sin(turtleState.theta * (Math.PI / 180)) *
               nextInstruction.move
-            ).toFixed(0)
+            ).toFixed(1)
           );
         const nextY =
           turtleState.y -
@@ -73,7 +73,7 @@ export const useExecution = ({
             (
               Math.cos(turtleState.theta * (Math.PI / 180)) *
               nextInstruction.move
-            ).toFixed(0)
+            ).toFixed(1)
           );
         setTurtleState({
           ...turtleState,
