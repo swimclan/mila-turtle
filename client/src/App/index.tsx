@@ -15,6 +15,31 @@ import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 const drawingBoardRef: React.RefObject<HTMLDivElement> = createRef();
 const canvasRef: React.RefObject<HTMLCanvasElement> = createRef();
 
+const DEFAULT_SCRIPT = [
+  "PEN DOWN",
+  "STROKE 5",
+  "DO 32",
+  "DO 15",
+  "COLOR RED",
+  "MOVE 10",
+  "RIGHT 3",
+  "COLOR ORANGE",
+  "MOVE 10",
+  "RIGHT 3",
+  "COLOR GREEN",
+  "MOVE 10",
+  "RIGHT 3",
+  "COLOR BLUE",
+  "MOVE 10",
+  "RIGHT 3",
+  "COLOR PURPLE",
+  "MOVE 10",
+  "RIGHT 3",
+  "END",
+  "RIGHT 42",
+  "END",
+];
+
 export const App = () => {
   /////// STATE ////////////////////////////////////////////////////
   const [script, setScript] = useState<TypeScript>([]);
@@ -57,6 +82,14 @@ export const App = () => {
   });
 
   const { savedData, onSave, onDelete } = useStorage();
+
+  useEffect(() => {
+    if (monoco && Object.keys(savedData).length === 0) {
+      monoco.editor.getModels()[0]?.setValue(DEFAULT_SCRIPT.join("\n"));
+      setScript(DEFAULT_SCRIPT);
+      setCompileRequested(true);
+    }
+  }, [monoco]);
 
   useEffect(() => {
     if (pendingDeleteId) {
