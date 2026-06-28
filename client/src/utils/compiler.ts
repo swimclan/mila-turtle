@@ -99,6 +99,136 @@ const LineCompiler = (line: string): TypeInstruction | void => {
   throw new TypeError(`Compiler error! Syntax error at ${line}`);
 };
 
+// ---------------------------------------------------------------------------
+// Validation (real-time Monaco markers)
+// ---------------------------------------------------------------------------
+
+type ValidationError = {
+  lineNumber: number;  // 1-based
+  startColumn: number; // 1-based, inclusive
+  endColumn: number;   // 1-based, exclusive
+  message: string;
+};
+
+export function validateScript(script: Array<string>): Array<ValidationError> {
+  // Pass 1: collect every variable name that is assigned anywhere in the script
+  const declaredVars = new Set<string>();
+  script.forEach((raw) => {
+    const m = raw.trim().match(ASSIGNMENT_PATTERN);
+    if (m) declaredVars.add(m[1].trim().toLowerCase());
+  });
+
+  const errors: ValidationError[] = [];
+
+  // Pass 2: validate each line
+  script.forEach((rawLine, index) => {
+    const lineNumber = index + 1;
+    const line = rawLine.trim();
+    if (!line) return;
+
+    if (COMMENT_PATTERN.test(line)) return;
+    if (ASSIGNMENT_PATTERN.test(line)) return;
+    if (INCREMENT_PATTERN.test(line)) return;
+    if (DECREMENT_PATTERN.test(line)) return;
+    if (END_PATTERN.test(line)) return;
+    if (CENTER_PATTERN.test(line)) return;
+    if (POSITION_INSTRUCTION_PATTERN.test(line)) return;
+    if (PEN_INSTRUCTION_PATTERN.test(line)) return;
+    if (LOOP_INSTRUCTION_PATTERN.test(line)) return;
+    if (COLOR_PATTERN.test(line)) return;
+    if (DIRECTION_PATTERN.test(line)) return;
+    if (STROKE_PATTERN.test(line)) return;
+    if (STROKE_PATTERN.test(line)) return;
+
+    // Dynamic position (variable reference) — valid only if var was declared
+    const dynMatch = line.match(DYNAMIC_POSITION_PATTERN);
+    if (dynMatch) {
+      const varName = dynMatch[2].trim().toLowerCase();
+      if (!declaredVars.has(varName)) {
+        const leadingSpaces = rawLine.length - rawLine.trimStart().length;
+        const argStart = leadingSpaces + dynMatch[1].length + 2; // after "CMD "
+        errors.push({
+          lineNumber,
+          startColumn: argStart,
+          endColumn: rawLine.length + 1,
+          message: `"${dynMatch[2]}" has not been declared — assign it first, e.g. ${dynMatch[2]} = 10`,
+        });
+      }
+      return;
+    }
+
+    errors.push(buildError(line, lineNumber, rawLine));
+  });
+
+  return errors;
+}
+
+function buildError(line: string, lineNumber: number, rawLine: string): ValidationError {
+  const leadingSpaces = rawLine.length - rawLine.trimStart().length;
+  const cmdWord = (line.match(/^([^\s]+)/)?.[1] ?? "").toUpperCase();
+  const cmdStart = leadingSpaces + 1;
+  const cmdEnd = cmdStart + cmdWord.length;   // exclusive
+  const argStart = cmdEnd + 1;                // after the space
+  const lineEnd = rawLine.length + 1;         // exclusive
+  const hasArg = argStart <= rawLine.length;
+  const argText = line.slice(cmdWord.length).trim();
+
+  switch (cmdWord) {
+    case "MOVE":
+    case "RIGHT":
+    case "LEFT":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not valid — ${cmdWord} expects a number (e.g. ${cmdWord} 100)` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `${cmdWord} requires a number argument` };
+
+    case "PEN":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not valid — PEN expects UP or DOWN` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `PEN requires UP or DOWN` };
+
+    case "DO":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not valid — DO expects a number (e.g. DO 10)` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `DO requires a number argument` };
+
+    case "COLOR":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not a valid color — expected RED, GREEN, BLUE, WHITE, PURPLE, PINK, ORANGE, or YELLOW` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `COLOR requires a color name` };
+
+    case "DIR":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not a valid direction — expected NORTH, SOUTH, EAST, or WEST` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `DIR requires a direction` };
+
+    case "STROKE":
+      return hasArg
+        ? { lineNumber, startColumn: argStart, endColumn: lineEnd,
+            message: `"${argText}" is not valid — STROKE expects a number (e.g. STROKE 5)` }
+        : { lineNumber, startColumn: cmdStart, endColumn: cmdEnd,
+            message: `STROKE requires a number argument` };
+
+    case "END":
+    case "CENTER":
+      return { lineNumber, startColumn: argStart, endColumn: lineEnd,
+               message: `${cmdWord} does not take any arguments` };
+
+    default:
+      return { lineNumber, startColumn: cmdStart, endColumn: cmdEnd || lineEnd,
+               message: `Unknown instruction "${cmdWord || line}"` };
+  }
+}
+
 const ExplodeLoop = (script: Array<string>): Array<string> => {
   const ret = [];
   const loopIterationCount = Number(

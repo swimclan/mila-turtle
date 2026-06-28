@@ -1,6 +1,7 @@
 import React, { useState, useCallback, createRef, useEffect } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import { configureMonaco, LANGUAGE_ID, THEME_ID } from "../utils/monacoConfig";
+import { validateScript } from "../utils/compiler";
 import { Layout, Container, SimpleList } from "../components/Layout";
 import { TriangleUp } from "../components/Shape";
 import { Button, SmallButton } from "../components/Button";
@@ -83,6 +84,22 @@ export const App = () => {
   });
 
   const { savedData, onSave, onDelete } = useStorage();
+
+  // Real-time syntax validation → Monaco squiggly underlines
+  useEffect(() => {
+    if (!monoco) return;
+    const model = monoco.editor.getModels()[0];
+    if (!model) return;
+    const markers = validateScript(script).map((err) => ({
+      severity: monoco.MarkerSeverity.Error,
+      message: err.message,
+      startLineNumber: err.lineNumber,
+      startColumn: err.startColumn,
+      endLineNumber: err.lineNumber,
+      endColumn: err.endColumn,
+    }));
+    monoco.editor.setModelMarkers(model, "mila-turtle", markers);
+  }, [script, monoco]);
 
   useEffect(() => {
     if (monoco && Object.keys(savedData).length === 0) {
