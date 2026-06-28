@@ -1,10 +1,15 @@
 import type { Monaco } from "@monaco-editor/react";
 
+type CompletionProvider = Parameters<Monaco["languages"]["registerCompletionItemProvider"]>[1];
+type ProvideParams = Parameters<NonNullable<CompletionProvider["provideCompletionItems"]>>;
+type TextModel = ProvideParams[0];
+type Position = ProvideParams[1];
+
 export const LANGUAGE_ID = "mila-turtle";
 export const THEME_ID = "mila-turtle-dark";
 
 export function configureMonaco(monaco: Monaco) {
-  if (monaco.languages.getLanguages().some((l) => l.id === LANGUAGE_ID)) return;
+  if (monaco.languages.getLanguages().some((l: { id: string }) => l.id === LANGUAGE_ID)) return;
 
   monaco.languages.register({ id: LANGUAGE_ID });
 
@@ -43,7 +48,7 @@ export function configureMonaco(monaco: Monaco) {
     monaco.languages;
 
   monaco.languages.registerCompletionItemProvider(LANGUAGE_ID, {
-    provideCompletionItems(model, position) {
+    provideCompletionItems(model: TextModel, position: Position) {
       const word = model.getWordUntilPosition(position);
       const range = {
         startLineNumber: position.lineNumber,
