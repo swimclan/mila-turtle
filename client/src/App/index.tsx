@@ -3,9 +3,9 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 import { Layout, Container, SimpleList } from "../components/Layout";
 import { TriangleUp } from "../components/Shape";
 import { Button, SmallButton } from "../components/Button";
-import { VectorLines } from "../components/Line";
 import { Canvas } from "../components/Canvas";
 import { useCanvas } from "./hooks/useCanvas";
+import { useDrawing } from "./hooks/useDrawing";
 import { useExecution } from "./hooks/useExecution";
 import { useCompiler } from "./hooks/useCompiler";
 import { useStorage } from "./hooks/useStorage";
@@ -13,7 +13,7 @@ import { SaveModal } from "../components/SaveModal";
 import { DeleteConfirmModal } from "../components/DeleteConfirmModal";
 
 const drawingBoardRef: React.RefObject<HTMLDivElement> = createRef();
-const canvasRef: React.RefObject<SVGSVGElement> = createRef();
+const canvasRef: React.RefObject<HTMLCanvasElement> = createRef();
 
 export const App = () => {
   /////// STATE ////////////////////////////////////////////////////
@@ -31,6 +31,9 @@ export const App = () => {
   /* Get the dimensions of the canvas */
   const { dimensions: CanvasDimensions } = useCanvas(canvasRef);
 
+  /* Imperative canvas drawing — no React state per line */
+  const { drawLine, clearCanvas } = useDrawing(canvasRef);
+
   /* Compile the script */
   const { instructions, clearCompilation } = useCompiler({
     script,
@@ -41,7 +44,6 @@ export const App = () => {
   const {
     clearExecution,
     turtleState,
-    lines,
     isRunning,
     currentInstruction,
     stopRunning,
@@ -50,6 +52,8 @@ export const App = () => {
     canvasDimensions: CanvasDimensions,
     instructions,
     onFinish: () => setCompileRequested(false),
+    onDrawLine: drawLine,
+    onClearLines: clearCanvas,
   });
 
   const { savedData, onSave, onDelete } = useStorage();
@@ -157,7 +161,15 @@ export const App = () => {
           border={["bottom"]}
         >
           <Container height="auto" width="80%" align="left">
-            Mila Turtle 1.0
+            Mila Turtle 1.0 &nbsp;|&nbsp;
+            <a
+              href="https://github.com/swimclan/mila-turtle#readme"
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: "inherit" }}
+            >
+              Language Guide
+            </a>
           </Container>
           <Container height="auto" width="20%" align="right">
             <Button variant="primary" onClick={handleSaveClick}>
@@ -167,9 +179,7 @@ export const App = () => {
         </Container>
         <Container ref={drawingBoardRef} gridarea="canvas" border={["left"]}>
           <TriangleUp width={10} {...turtleState} />
-          <Canvas ref={canvasRef}>
-            <VectorLines lines={lines} />
-          </Canvas>
+          <Canvas ref={canvasRef} />
         </Container>
         <Container gridarea="editor" width="100%">
           <div>Code Editor</div>
