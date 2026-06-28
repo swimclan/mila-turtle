@@ -1,5 +1,6 @@
 import React, { useState, useCallback, createRef, useEffect } from "react";
 import Editor, { useMonaco } from "@monaco-editor/react";
+import { configureMonaco, LANGUAGE_ID, THEME_ID } from "../utils/monacoConfig";
 import { Layout, Container, SimpleList } from "../components/Layout";
 import { TriangleUp } from "../components/Shape";
 import { Button, SmallButton } from "../components/Button";
@@ -216,7 +217,12 @@ export const App = () => {
         </Container>
         <Container gridarea="editor" width="100%">
           <div>Code Editor</div>
-          <Editor theme="vs-dark" onChange={handleEditorChange} />
+          <Editor
+            language={LANGUAGE_ID}
+            theme={THEME_ID}
+            beforeMount={configureMonaco}
+            onChange={handleEditorChange}
+          />
         </Container>
         <Container gridarea="browser" border={["top"]}>
           <div>File Browser</div>
