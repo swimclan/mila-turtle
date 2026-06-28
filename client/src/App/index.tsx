@@ -61,7 +61,7 @@ export const App = () => {
   const { drawLine, clearCanvas } = useDrawing(canvasRef);
 
   /* Compile the script */
-  const { instructions, clearCompilation } = useCompiler({
+  const { instructions, clearCompilation, compilationError } = useCompiler({
     script,
     compileRequested,
   });
@@ -116,6 +116,7 @@ export const App = () => {
   const handleClearClick = useCallback(
     (e: React.SyntheticEvent) => {
       clearExecution();
+      clearCompilation();
       setCompileRequested(false);
     },
     [setScript, monoco, CanvasDimensions]
@@ -217,6 +218,11 @@ export const App = () => {
         </Container>
         <Container gridarea="editor" width="100%">
           <div>Code Editor</div>
+          {compilationError && (
+            <div style={{ color: "#f44", padding: "4px 8px", fontSize: "12px", fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+              {compilationError}
+            </div>
+          )}
           <Editor
             language={LANGUAGE_ID}
             theme={THEME_ID}
